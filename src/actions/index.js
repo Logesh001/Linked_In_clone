@@ -11,6 +11,7 @@ export function signInAPI(){
     };
 }*/
 
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import db, { auth,provider, storage } from "../firebase";
 import { SET_USER,SET_LOADING_STATUS,GET_ARTICLES } from "./actionType";
 
@@ -32,7 +33,7 @@ export const getArticles=(payload)=>({
 
 export function signInAPI(){
     return(dispatch)=>{
-        auth.signInWithPopup(provider)
+        signInWithPopup(auth, provider)
         .then((payload)=>{
            dispatch(setUser(payload.user));         
         })

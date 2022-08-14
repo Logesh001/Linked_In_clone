@@ -1,57 +1,91 @@
+import { useState,useEffect } from "react";
+import ReactPlayer from "react-player";
+import { connect } from "react-redux";
 import styled from "styled-components";
+import { getArticlesAPI } from "../actions";
+import PostModal from "./PostModal";
 
 const Main = (props) => {
+  const[showModal,setShowModal]=useState("close");
+    
+  useEffect(()=>{
+    props.getArticles();
+  },[])
+
+  const handleClick=(e)=>{
+      e.preventDefault();
+      if(e.target!==e.currentTarget){
+          return ;
+      }
+      switch(showModal){
+          case "open":
+              setShowModal("close");
+              break;
+          case "close":
+              setShowModal("open");
+              break;
+          default:
+              setShowModal("close");
+              break;
+      }
+  }
   return (
+    <>
+        {props.articles.length===0?<p>There are no Articles</p>:(
   <Container>
-    <ShareBox>Share
+    <ShareBox>
+      
     <div>
-        <img src="/images/user.svg" alt=""/>
-        <button>Start a post</button>
+    {props.user&&props.user.photoURL?(<img src={props.user.photoURL} alt=""/>):(<img src="/images/user.svg" alt="user"/>)}
+                   <button onClick={handleClick} disabled={props.loading?true:false}>Start a post</button>
     </div>
 
     <div>
-        <button>
-        <img src="https://img.icons8.com/external-flaticons-lineal-color-flat-icons/24/000000/external-photo-night-club-flaticons-lineal-color-flat-icons-2.png"/>
-        <span>Photo</span>
-        </button>
-    
-        <button>
-        <img src="https://img.icons8.com/fluency/24/000000/video.png"/>
-        <span>Video</span>
-        </button>
-    
-        <button>
-        <img src="https://img.icons8.com/external-kiranshastry-lineal-color-kiranshastry/24/000000/external-event-camping-kiranshastry-lineal-color-kiranshastry.png"/>
-        <span>Event</span>
-        </button>
-  
-        <button>
-        <img src="https://img.icons8.com/tiny-color/24/000000/experimental-news-tiny-color.png"/>
-        <span>Write article</span>
-        </button>
+    <button>
+      <img src="/images/photo-icon.svg" class="filter-blue" alt="photo"/>
+      <span>Photo</span>
+    </button>
+    <button>
+      <img src="/images/video-icon.svg" class="filter-green" alt="photo"/>
+      <span>Video</span>
+    </button>
+    <button>
+      <img src="/images/event-icon.svg" class="filter-orange" alt="photo"/>
+      <span>Event</span>
+     </button>
+     <button>
+       <img src="/images/article-icon.svg" class="filter-rose" alt="photo"/>
+       <span>Write article</span>
+     </button>
     </div>
     </ShareBox>
-    <div>
-      <Article>
+    <Content>
+            {props.loading&&<img src="/images/spin-loader.svg" alt=""/>}
+            {props.articles.length>0&&props.articles.map((article,key)=>(
+          <Article key={key}>
           <SharedActor>
             <a>
-              <img src="/images/user.svg" />
-              <div>
-                <span>Title </span>
-                <span>Info </span>
-                <span>Date </span>
-              </div>
+            <img src={article.actor.image} alt="user"/>
+                            <div>
+                                <span>{article.actor.displayName}</span>
+                                <span>{article.actor.description}</span>
+                                <span>{article.actor.date.toDate().toLocaleDateString()}</span>
+                            </div>
             </a>
             <button>
-              <img src="https://img.icons8.com/ios-filled/24/000000/ellipsis.png"/>
+               <img src="/images/ellipses.svg" alt="dot"/>
             </button>
           </SharedActor>
           <Description>
-              Description
+            {article.description}
           </Description>
           <SharedImg>
             <a>
-              <img src="/images/Zugpsitze_mountain.jpg" alt=""/>
+            {
+                               !article.sharedImg&&article.video?(<ReactPlayer width={"100%"} url={article.video} />):(
+                                   article.sharedImg&&<img src={article.sharedImg} alt="post"/>
+                               )
+                           }
             </a>
           </SharedImg>
           <SocialCounts>
@@ -68,28 +102,34 @@ const Main = (props) => {
             </li>
           </SocialCounts>
           <SocialActions>
-                        <button>
-                            <img src="https://img.icons8.com/external-tanah-basah-detailed-outline-tanah-basah/24/000000/external-like-user-interface-tanah-basah-detailed-outline-tanah-basah.png" class="filter-blue" alt="like"/>
-                            <span>Like</span>
-                        </button>
-                        <button>
-                            <img src="https://img.icons8.com/material-outlined/24/000000/comments--v1.png" class="filter-blue" alt="comments"/>
-                            <span>Comments</span>
-                        </button>
-                        <button>
-                            <img src="https://img.icons8.com/ios-glyphs/24/000000/share--v1.png" class="filter-blue" alt="share"/>
-                            <span>Share</span>
-                        </button>
-                        <button>
-                            <img src="https://img.icons8.com/windows/24/000000/send.png" class="filter-blue" alt="send"/>
-                            <span>Send</span>
-                        </button>
-                    </SocialActions>
+             <button>
+                <img src="/images/like.svg" class="filter-blue" alt="like"/>
+                <span>Like</span>
+             </button>
+             <button>
+                <img src="/images/comments.svg" class="filter-blue" alt="comments"/>
+                <span>Comments</span>
+             </button>
+             <button>
+                <img src="/images/share.svg" class="filter-blue" alt="share"/>
+                <span>Share</span>
+             </button>
+             <button>
+                <img src="/images/send.svg" class="filter-blue" alt="send"/>
+                <span>Send</span>
+             </button>
+          </SocialActions>
       </Article>
-    </div>
-  </Container>
-  );
-};
+      ))}
+  
+  </Content>
+            <PostModal showModal={showModal} handleClick={handleClick}/>
+        </Container>)}
+        
+        </>
+    )
+
+}
 
 const Container = styled.div`
   grid-area: main;
@@ -308,4 +348,23 @@ const SocialActions=styled.div `
  }
 `;
 
-export default Main;
+const Content=styled.div `
+ text-align:center;
+ & > img{
+     width:30px;
+ }
+`;
+
+const mapStateToProps=(state)=>{
+    return{
+        loading:state.articleState.loading,
+        user:state.userState.user,
+        articles:state.articleState.articles,
+    }
+}
+
+const mapDispatchToProps=(dispatch)=>({
+   getArticles:()=>dispatch(getArticlesAPI() )
+});
+
+export default connect(mapStateToProps,mapDispatchToProps)(Main);

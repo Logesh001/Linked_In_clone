@@ -1,11 +1,8 @@
-//import firebase from "./firebase";
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
-import firebase from "firebase/compat/app"
-
-import "firebase/compat/auth"
-import "firebase/compat/firestore"
-
+import { getAuth } from "firebase/auth";
+import { GoogleAuthProvider } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 const firebaseConfig = {
   apiKey: "AIzaSyCYGakJvYvL1-AVLXWmt3yqvsnBgFBX95A",
   authDomain: "linked-in-ed944.firebaseapp.com",
@@ -15,15 +12,15 @@ const firebaseConfig = {
   appId: "1:543092544483:web:32261500616c17dbd206d6"
 };
   
-const firebaseApp=firebase.initializeApp(firebaseConfig);
+const firebaseApp=initializeApp(firebaseConfig);
 
-const db=firebaseApp.firestore();
+const db = getFirestore(firebaseApp);
 
-const auth=firebase.auth();
+const auth = getAuth(firebaseApp);
 
-const provider=new firebase.auth.GoogleAuthProvider();
+const provider = new GoogleAuthProvider();
 
-const storage=firebase.storage();
+const storage = getStorage(firebaseApp);
 
 export {auth,provider,storage};
 export default db;
